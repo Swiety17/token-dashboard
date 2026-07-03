@@ -1,0 +1,5 @@
+#!/bin/bash
+# tokencheck — szybkie sprawdzenie stanu tokenów Claude + Codex
+# Instalacja: ln -sf ~/Projects/token-dashboard/tokencheck ~/.local/bin/tokencheck
+INSTALL_DIR="$HOME/Projects/token-dashboard"
+python3 "$INSTALL_DIR/tokentracker.py" "$@"

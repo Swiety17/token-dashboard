@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🪙 TOKEN TRACKER — Rychu Kokpit</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════
+   PIXEL-ART TOKEN DASHBOARD — NES 8-bit style
+   ═══════════════════════════════════════════════ */
+:root {
+  --bg:       #0a0a1a;
+  --panel:    #12122a;
+  --border:   #2a2a5a;
+  --text:     #e0e0f0;
+  --dim:      #606090;
+  --accent:   #40c0ff;
+  --green:    #40e040;
+  --yellow:   #f8d830;
+  --red:      #f04040;
+  --orange:   #f8a040;
+  --claude:   #f8d830;
+  --codex:    #40e040;
+  --gauge-bg: #1a1a3a;
+  --pixel:    4px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 11px;
+  line-height: 2.0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  image-rendering: pixelated;
+  -webkit-font-smoothing: none;
+}
+
+/* ── CRT overlay (disabled — no flicker) ── */
+
+/* ── Main container ── */
+.dashboard {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  padding: 28px;
+  max-width: 960px;
+  width: 100%;
+}
+
+/* ── Panel ── */
+.panel {
+  background: var(--panel);
+  border: 5px solid var(--border);
+  padding: 18px 20px;
+  position: relative;
+  box-shadow:
+    5px 5px 0 #000,
+    inset 0 0 0 2px rgba(255,255,255,0.03);
+}
+
+.panel::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border: 2px solid rgba(255,255,255,0.04);
+  pointer-events: none;
+}
+
+.panel-title {
+  font-size: 11px;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--border);
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.panel-title .icon {
+  font-size: 18px;
+  image-rendering: pixelated;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+/* ── Gauge bar (health-bar style) ── */
+.gauge-row {
+  margin-bottom: 10px;
+}
+.gauge-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  font-size: 8px;
+}
+.gauge-label .name {
+  color: var(--dim);
+  text-transform: uppercase;
+}
+.gauge-label .pct {
+  font-size: 10px;
+}
+.gauge-track {
+  height: 18px;
+  background: var(--gauge-bg);
+  border: 2px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+.gauge-fill {
+  height: 100%;
+  transition: width 0.4s steps(12);
+  position: relative;
+}
+.gauge-fill::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 2px,
+    rgba(255,255,255,0.1) 2px,
+    rgba(255,255,255,0.1) 4px
+  );
+}
+.gauge-fill.safe   { background: var(--green); }
+.gauge-fill.warn   { background: var(--yellow); }
+.gauge-fill.danger { background: var(--red); }
+
+.gauge-remaining {
+  font-size: 7px;
+  color: var(--dim);
+  text-align: right;
+  margin-top: 2px;
+}
+
+/* ── Stat blocks ── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.stat-block {
+  background: rgba(0,0,0,0.3);
+  border: 2px solid var(--border);
+  padding: 8px 10px;
+  text-align: center;
+}
+.stat-val {
+  font-size: 14px;
+  color: var(--accent);
+}
+.stat-val.big {
+  font-size: 16px;
+}
+.stat-lbl {
+  font-size: 7px;
+  color: var(--dim);
+  margin-top: 3px;
+  text-transform: uppercase;
+}
+
+/* ── Top threads ── */
+.thread-item {
+  background: rgba(0,0,0,0.2);
+  border: 2px solid var(--border);
+  padding: 6px 10px;
+  margin-bottom: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 9px;
+}
+.thread-item .name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 60%;
+  color: var(--dim);
+}
+.thread-item .tokens {
+  color: var(--codex);
+  font-size: 10px;
+}
+
+/* ── Status strip ── */
+.status-strip {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.status-dot {
+  width: 8px; height: 8px;
+  border: 1px solid;
+}
+.status-dot.on { background: var(--green); border-color: var(--green); }
+.status-dot.off{ background: transparent; border-color: var(--dim); }
+
+/* ── Recommendation badge ── */
+.rec-badge {
+  display: inline-block;
+  padding: 8px 14px;
+  border: 2px solid;
+  font-size: 10px;
+  text-transform: uppercase;
+}
+.rec-badge.claude { border-color: var(--claude); color: var(--claude); }
+.rec-badge.codex  { border-color: var(--codex); color: var(--codex); }
+
+/* ── Pacing bar ── */
+.pacing-row {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
+}
+.pacing-seg {
+  flex: 1;
+  height: 10px;
+  border: 1px solid var(--border);
+}
+.pacing-seg.filled { background: var(--accent); }
+.pacing-seg.empty  { background: var(--gauge-bg); }
+
+/* ── Clock ── */
+.clock {
+  font-size: 8px;
+  color: var(--dim);
+  text-align: center;
+  grid-column: 1 / -1;
+  padding-top: 6px;
+}
+
+/* ── Loading ── */
+.loading-text {
+  text-align: center;
+  color: var(--dim);
+}
+
+/* ── Responsive: stack ── */
+@media (max-width: 600px) {
+  .dashboard { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="dashboard">
+  <!-- ═══ CLAUDE PANEL ═══ -->
+  <div class="panel" id="claude-panel">
+    <div class="panel-title">
+      <span class="icon">🔵</span> CLAUDE
+      <span style="margin-left:auto;font-size:7px;color:var(--dim)">PLAYER 1</span>
+    </div>
+    <div id="claude-gauges" class="loading-text">ŁADOWANIE...</div>
+    <div class="pacing-row" id="claude-pacing"></div>
+    <div class="stats-grid" style="margin-top:8px" id="claude-stats"></div>
+  </div>
+
+  <!-- ═══ CODEX PANEL ═══ -->
+  <div class="panel" id="codex-panel">
+    <div class="panel-title">
+      <span class="icon">🟢</span> CODEX
+      <span style="margin-left:auto;font-size:7px;color:var(--dim)">PLAYER 2</span>
+    </div>
+    <div id="codex-stats" class="loading-text">ŁADOWANIE...</div>
+    <div style="margin-top:6px" id="codex-top"></div>
+  </div>
+
+  <!-- ═══ REKOMENDACJA ═══ -->
+  <div class="panel full-width" style="text-align:center; padding:12px 16px;">
+    <span style="font-size:8px;color:var(--dim)">REKOMENDACJA:</span>
+    <span id="rec-badge" style="margin-left:8px"></span>
+  </div>
+
+  <!-- ═══ CLOCK ═══ -->
+  <div class="clock" id="clock"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  PIXEL DASHBOARD ENGINE — v2 (no flicker, sys notifications)
+// ═══════════════════════════════════════════════
+
+const DATA_URL = 'token-data.json';
+const REFRESH_MS = 30000;
+const NOTIFY_THRESHOLDS = [80, 90, 100];
+
+// Track last known percentages to avoid repeat notifications
+let lastPcts = {};
+// Track which thresholds already fired for which bucket
+let firedAlerts = {};
+
+// ── Notifications ─────────────────────────────────────────
+
+function requestNotify() {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+}
+
+function notify(title, body) {
+  if (!('Notification' in window)) return;
+  if (Notification.permission !== 'granted') return;
+  try {
+    new Notification(title, {
+      body: body,
+      icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🪙</text></svg>',
+      tag: 'token-alert',
+      requireInteraction: true
+    });
+  } catch(e) {/* silent */}
+}
+
+function checkThreshold(bucketKey, label, pct, provider) {
+  const id = provider + ':' + bucketKey;
+  if (!firedAlerts[id]) firedAlerts[id] = new Set();
+
+  for (const t of NOTIFY_THRESHOLDS) {
+    if (pct >= t && !firedAlerts[id].has(t)) {
+      // Fire once per threshold crossing UPWARD
+      const prev = lastPcts[id] || 0;
+      if (prev < t) {
+        firedAlerts[id].add(t);
+        const emoji = t >= 100 ? '🔥' : t >= 90 ? '🚨' : '⚠️';
+        notify(
+          `${emoji} ${provider.toUpperCase()} — ${label}`,
+          `Wykorzystanie: ${pct}% (próg ${t}%)\nSprawdź dashboard: http://localhost:8765`
+        );
+      }
+    }
+    // Reset fired state when pct drops below threshold
+    if (pct < t - 5) {
+      firedAlerts[id].delete(t);
+    }
+  }
+  lastPcts[id] = pct;
+}
+
+// ── Formatting ────────────────────────────────────────────
+
+function fmt(n) {
+  if (n >= 1e9) return (n/1e9).toFixed(2) + 'B';
+  if (n >= 1e6) return (n/1e6).toFixed(2) + 'M';
+  if (n >= 1e3) return (n/1e3).toFixed(1) + 'K';
+  return String(n || 0);
+}
+
+function gaugeClass(pct) {
+  if (pct >= 90) return 'danger';
+  if (pct >= 80) return 'warn';
+  return 'safe';
+}
+
+// ── Render ────────────────────────────────────────────────
+
+function renderClaude(data) {
+  if (!data.available) {
+    document.getElementById('claude-gauges').innerHTML =
+      '<span style="color:var(--red)">BRAK DANYCH</span>';
+    return;
+  }
+
+  let html = '';
+  for (const [key, b] of Object.entries(data.buckets)) {
+    const cls = gaugeClass(b.pct);
+    const resetInfo = b.remaining_min != null
+      ? `<div class="gauge-remaining">RESET: ${b.remaining_min}min</div>`
+      : '';
+    let extra = '';
+    if (key === 'extra_usage' && b.limit) {
+      extra = ` (${b.used}/${b.limit} ${b.currency||'EUR'})`;
+    }
+    html += `
+      <div class="gauge-row">
+        <div class="gauge-label">
+          <span class="name">${b.label}${extra}</span>
+          <span class="pct" style="color:${cls==='danger'?'var(--red)':cls==='warn'?'var(--yellow)':'var(--green)'}">${b.pct}%</span>
+        </div>
+        <div class="gauge-track">
+          <div class="gauge-fill ${cls}" style="width:${Math.min(b.pct,100)}%"></div>
+        </div>
+        ${resetInfo}
+      </div>`;
+
+    // Check notification thresholds
+    checkThreshold(key, b.label, b.pct, 'claude');
+  }
+  document.getElementById('claude-gauges').innerHTML = html;
+
+  // Pacing
+  const daily = data.daily || [];
+  const peak = data.peak_day || 1;
+  let pacingHtml = '';
+  for (let i = 0; i < 7; i++) {
+    const v = daily[i] || 0;
+    const ratio = peak > 0 ? v / peak : 0;
+    const cls = ratio > 0.5 ? 'filled' : (ratio > 0 ? 'filled' : 'empty');
+    pacingHtml += `<div class="pacing-seg ${cls}" title="Dzień ${i+1}: ${fmt(v)}"></div>`;
+  }
+  document.getElementById('claude-pacing').innerHTML = pacingHtml;
+
+  // Stats
+  document.getElementById('claude-stats').innerHTML = `
+    <div class="stat-block">
+      <div class="stat-val big">${fmt(data.total_7d)}</div>
+      <div class="stat-lbl">Tokeny 7d</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-val big">${fmt(data.peak_day)}</div>
+      <div class="stat-lbl">Peak Day</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-val">${data.pacing||'?'}</div>
+      <div class="stat-lbl">Pacing</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-val">TokenEater</div>
+      <div class="stat-lbl">Źródło</div>
+    </div>
+  `;
+}
+
+function renderCodex(data) {
+  if (!data.available) {
+    document.getElementById('codex-stats').innerHTML =
+      '<span style="color:var(--red)">BRAK DANYCH</span>';
+    return;
+  }
+  const s = data.summary || {};
+  const w = data.windows || {};
+
+  document.getElementById('codex-stats').innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-block">
+        <div class="stat-val">${s.threads||0}</div>
+        <div class="stat-lbl">Wątków</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-val big">${fmt(s.total)}</div>
+        <div class="stat-lbl">Tokenów</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-val">${fmt((w['24h']||{}).tokens||0)}</div>
+        <div class="stat-lbl">24h</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-val">${fmt((w['7d']||{}).tokens||0)}</div>
+        <div class="stat-lbl">7 dni</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-val">${fmt((w['30d']||{}).tokens||0)}</div>
+        <div class="stat-lbl">30 dni</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-val big">${fmt(s.peak)}</div>
+        <div class="stat-lbl">Max wątek</div>
+      </div>
+    </div>
+  `;
+
+  // Top threads
+  let topHtml = '';
+  for (const t of (data.top || [])) {
+    topHtml += `
+      <div class="thread-item">
+        <span class="name">${t.title}</span>
+        <span class="tokens">${fmt(t.tokens)}</span>
+      </div>`;
+  }
+  document.getElementById('codex-top').innerHTML = topHtml;
+}
+
+function renderRec(claude, codex) {
+  const badge = document.getElementById('rec-badge');
+  const claude5h = claude.available
+    ? (claude.buckets?.five_hour?.pct || 0) : 0;
+
+  if (claude5h >= 90) {
+    badge.textContent = '🔥 UŻYJ CODEX — CLAUDE 90%+';
+    badge.className = 'rec-badge codex';
+  } else if (claude5h >= 80) {
+    badge.textContent = '⚠ UŻYJ CODEX — CLAUDE 80%+';
+    badge.className = 'rec-badge codex';
+  } else if (claude5h >= 60) {
+    badge.textContent = '⚡ ROZWAŻ CODEX — CLAUDE >60%';
+    badge.className = 'rec-badge codex';
+  } else {
+    badge.textContent = '✅ CLAUDE — LUZ';
+    badge.className = 'rec-badge claude';
+  }
+}
+
+// ── Notify on limits reset (when pct drops significantly) ─
+
+function checkResets(claude) {
+  if (!claude.available) return;
+  for (const [key, b] of Object.entries(claude.buckets || {})) {
+    const id = 'claude:' + key;
+    const prev = lastPcts[id];
+    // If was >= 80% and now dropped to <10% → limit likely reset
+    if (prev !== undefined && prev >= 80 && b.pct < 10) {
+      notify(
+        `🔄 ${b.label} — limit odświeżony!`,
+        `Spadło z ${prev}% → ${b.pct}%\nMożesz wrócić do Claude Code.`
+      );
+      // Reset all fired alerts for this bucket
+      firedAlerts[id] = new Set();
+    }
+  }
+}
+
+// ── Refresh ───────────────────────────────────────────────
+
+async function refresh() {
+  try {
+    const resp = await fetch(DATA_URL + '?t=' + Date.now());
+    const data = await resp.json();
+
+    const claude = data.claude || {};
+    checkResets(claude);
+    renderClaude(claude);
+    renderCodex(data.codex || {});
+    renderRec(claude, data.codex || {});
+
+    document.getElementById('clock').textContent =
+      'OSTATNIA AKTUALIZACJA: ' + new Date().toLocaleTimeString('pl-PL');
+  } catch (e) {
+    console.error('Token fetch error:', e);
+  }
+}
+
+// ── Init ──────────────────────────────────────────────────
+
+requestNotify();
+refresh();
+setInterval(refresh, REFRESH_MS);
+</script>
+
+</body>
+</html>

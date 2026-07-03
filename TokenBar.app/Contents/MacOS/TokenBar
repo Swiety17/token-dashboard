@@ -1,0 +1,4 @@
+#!/bin/bash
+# TokenBar .app executable
+DIR="$(cd "$(dirname "$0")" && pwd)"
+exec /Library/Frameworks/Python.framework/Versions/3.13/bin/python3 "$DIR/../Resources/tokenbar.py"

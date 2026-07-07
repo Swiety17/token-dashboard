@@ -44,74 +44,36 @@ body {
 .orn-br { bottom: -3px; right: -3px; border-left: none; border-top: none; border-bottom-right-radius: 14px; }
 .orn-br::after { bottom: -4px; right: -4px; }
 
-/* ── Grandpa Miner Animations ── */
 @keyframes swing {
-  0%, 30% { transform: rotate(-55deg); }
-  40%, 55% { transform: rotate(30deg); }
-  62% { transform: rotate(-15deg); }
-  70%, 100% { transform: rotate(-55deg); }
-}
-@keyframes beardSwing {
-  0%, 30% { transform: rotate(0deg); }
-  40%, 55% { transform: rotate(-8deg); }
-  62% { transform: rotate(3deg); }
-  70%, 100% { transform: rotate(0deg); }
+  0%, 45% { transform: rotate(-45deg); }
+  50%, 95% { transform: rotate(25deg); }
+  100% { transform: rotate(-45deg); }
 }
 @keyframes shake {
-  0%, 38% { transform: translateX(0); }
-  42% { transform: translateX(-3px); }
-  48% { transform: translateX(3px); }
-  52% { transform: translateX(-2px); }
-  56%, 100% { transform: translateX(0); }
+  0%, 45% { transform: translateX(0); }
+  50% { transform: translateX(-2px); }
+  55% { transform: translateX(2px); }
+  60%, 100% { transform: translateX(0); }
 }
 @keyframes popToken0 {
-  0%, 38% { opacity: 0; transform: translate(0,0) scale(1); }
-  42% { opacity: 1; transform: translate(3px,-8px) scale(1.2); }
-  100% { opacity: 0; transform: translate(8px,-38px) scale(0.4); }
+  0%, 48% { opacity: 0; transform: translate(0,0); }
+  52% { opacity: 1; transform: translate(0,0); }
+  100% { opacity: 0; transform: translate(6px,-34px); }
 }
 @keyframes popToken1 {
-  0%, 38% { opacity: 0; transform: translate(0,0) scale(1); }
-  44% { opacity: 1; transform: translate(-4px,-6px) scale(1.1); }
-  100% { opacity: 0; transform: translate(-14px,-32px) scale(0.3); }
+  0%, 48% { opacity: 0; transform: translate(0,0); }
+  52% { opacity: 1; transform: translate(0,0); }
+  100% { opacity: 0; transform: translate(-10px,-30px); }
 }
 @keyframes popToken2 {
-  0%, 38% { opacity: 0; transform: translate(0,0) scale(1); }
-  46% { opacity: 1; transform: translate(0,-10px) scale(1.3); }
-  100% { opacity: 0; transform: translate(6px,-42px) scale(0.5); }
-}
-@keyframes popToken3 {
-  0%, 38% { opacity: 0; transform: translate(0,0) scale(1); }
-  48% { opacity: 1; transform: translate(10px,-4px) scale(0.9); }
-  100% { opacity: 0; transform: translate(18px,-28px) scale(0.3); }
+  0%, 48% { opacity: 0; transform: translate(0,0); }
+  52% { opacity: 1; transform: translate(0,0); }
+  100% { opacity: 0; transform: translate(16px,-24px); }
 }
 @keyframes legStep {
-  0%, 30% { transform: scaleY(1) skewX(0deg); }
-  38% { transform: scaleY(0.8) skewX(2deg); }
-  50% { transform: scaleY(0.9) skewX(-1deg); }
-  62% { transform: scaleY(1) skewX(0deg); }
-  70%, 100% { transform: scaleY(1) skewX(0deg); }
-}
-@keyframes lampGlow {
-  0%, 38% { opacity: 0.6; }
-  42% { opacity: 1; }
-  55% { opacity: 0.5; }
-  62% { opacity: 0.8; }
-  70%, 100% { opacity: 0.6; }
-}
-@keyframes dust1 {
-  0%, 40% { opacity: 0; transform: translate(0,0); }
-  45% { opacity: 0.5; transform: translate(-4px,-3px); }
-  100% { opacity: 0; transform: translate(-12px,-20px); }
-}
-@keyframes dust2 {
-  0%, 42% { opacity: 0; transform: translate(0,0); }
-  47% { opacity: 0.4; transform: translate(5px,-5px); }
-  100% { opacity: 0; transform: translate(14px,-22px); }
-}
-@keyframes dust3 {
-  0%, 44% { opacity: 0; transform: translate(0,0); }
-  49% { opacity: 0.6; transform: translate(-2px,-7px); }
-  100% { opacity: 0; transform: translate(-8px,-26px); }
+  0%, 45% { transform: scaleY(1); }
+  50% { transform: scaleY(0.85); }
+  100%, 55% { transform: scaleY(1); }
 }
 </style>
 </head>
@@ -138,138 +100,37 @@ body {
       <div id="lastSync" style="color:#8a7050;font-size:8px;margin-top:8px;">LAST SYNC: --</div>
     </div>
 
-    <!-- MINING RIG — Dziadek Górnik -->
+    <!-- MINING RIG -->
     <div class="plank" style="position:relative;padding:16px 22px;margin:22px 0 18px;display:flex;align-items:center;gap:22px;flex-wrap:wrap;">
       <div class="orn orn-tl"></div><div class="orn orn-tr"></div><div class="orn orn-bl"></div><div class="orn orn-br"></div>
-      <div style="color:#3a2415;font-size:8px;">DZIADEK<br>GÓRNIK</div>
+      <div style="color:#3a2415;font-size:8px;">MINING<br>RIG</div>
 
-      <div style="position:relative;width:200px;height:108px;background:#2a1a10;border:3px solid #3a2415;border-radius:8px;overflow:hidden;flex:none;">
-        <!-- Ground -->
-        <div style="position:absolute;left:0;right:0;bottom:0;height:12px;background:#1c120b;border-top:2px solid #3a2415;"></div>
-        <!-- Rock floor texture -->
-        <div style="position:absolute;left:40px;bottom:12px;width:8px;height:5px;background:#2a1a10;border:1px solid #3a2415;"></div>
-        <div style="position:absolute;left:90px;bottom:12px;width:6px;height:4px;background:#1f1410;border:1px solid #2a1a10;"></div>
-        <div style="position:absolute;right:60px;bottom:12px;width:10px;height:5px;background:#251810;border:1px solid #3a2415;"></div>
-
-        <!-- ⛏️ DZIADEK GÓRNIK — 44x56 pixel art -->
-        <div style="position:absolute;left:24px;bottom:12px;width:56px;height:64px;">
-
-          <!-- Lampa na hełmie (glow animation) -->
-          <div style="position:absolute;top:-10px;left:20px;width:8px;height:6px;background:#e8c040;animation:lampGlow 1s steps(1,end) infinite;box-shadow:0 0 6px 2px rgba(232,192,64,0.5);"></div>
-          <div style="position:absolute;top:-6px;left:22px;width:4px;height:4px;background:#888;"></div>
-
-          <!-- Hełm górniczy (biało-szary) -->
-          <div style="position:absolute;top:-2px;left:4px;width:36px;height:4px;background:#c8c8c8;"></div>
-          <div style="position:absolute;top:0;left:2px;width:40px;height:3px;background:#d4d4d4;"></div>
-          <div style="position:absolute;top:2px;left:0;width:44px;height:2px;background:#ddd;"></div>
-          <!-- Hełm rondo z przodu -->
-          <div style="position:absolute;top:2px;left:-4px;width:6px;height:3px;background:#c0c0c0;"></div>
-
-          <!-- Siwe włosy -->
-          <div style="position:absolute;top:4px;left:2px;width:8px;height:5px;background:#a8a8a8;"></div>
-          <div style="position:absolute;top:4px;right:2px;width:8px;height:6px;background:#b0b0b0;"></div>
-
-          <!-- Twarz -->
-          <div style="position:absolute;top:5px;left:8px;width:28px;height:16px;background:#d4a878;"></div>
-          <!-- Czoło (lekko jaśniejsze) -->
-          <div style="position:absolute;top:5px;left:10px;width:24px;height:4px;background:#dbb888;"></div>
-          <!-- Oczy (głęboko osadzone) -->
-          <div style="position:absolute;top:9px;left:12px;width:4px;height:2px;background:#241610;"></div>
-          <div style="position:absolute;top:9px;left:28px;width:4px;height:2px;background:#241610;"></div>
-          <!-- Zmarszczki pod oczami -->
-          <div style="position:absolute;top:11px;left:10px;width:8px;height:1px;background:#b8845a;"></div>
-          <div style="position:absolute;top:11px;left:26px;width:8px;height:1px;background:#b8845a;"></div>
-          <!-- Nos -->
-          <div style="position:absolute;top:12px;left:20px;width:4px;height:3px;background:#c09060;"></div>
-          <!-- Wąs (siwy!) -->
-          <div style="position:absolute;top:15px;left:8px;width:6px;height:2px;background:#c0c0c0;"></div>
-          <div style="position:absolute;top:15px;left:14px;width:16px;height:3px;background:#c8c8c8;"></div>
-          <div style="position:absolute;top:15px;left:30px;width:6px;height:2px;background:#c0c0c0;"></div>
-
-          <!-- BRODA (siwa, długa) - osobny element z animacją -->
-          <div style="position:absolute;top:17px;left:6px;width:32px;height:18px;transform-origin:22px 0;animation:beardSwing 1s steps(1,end) infinite;">
-            <div style="position:absolute;top:0;left:0;width:32px;height:3px;background:#d0d0d0;"></div>
-            <div style="position:absolute;top:2px;left:2px;width:30px;height:3px;background:#d8d8d8;"></div>
-            <div style="position:absolute;top:4px;left:4px;width:28px;height:3px;background:#e0e0e0;"></div>
-            <div style="position:absolute;top:6px;left:6px;width:26px;height:3px;background:#d0d0d0;"></div>
-            <div style="position:absolute;top:8px;left:8px;width:22px;height:3px;background:#d8d8d8;"></div>
-            <div style="position:absolute;top:10px;left:10px;width:18px;height:3px;background:#c8c8c8;"></div>
-            <div style="position:absolute;top:12px;left:12px;width:14px;height:3px;background:#d0d0d0;"></div>
-            <div style="position:absolute;top:14px;left:14px;width:10px;height:3px;background:#c8c8c8;"></div>
-            <!-- Spiczasty koniec brody -->
-            <div style="position:absolute;top:16px;left:16px;width:4px;height:3px;background:#c0c0c0;"></div>
-            <div style="position:absolute;top:18px;left:17px;width:2px;height:3px;background:#b8b8b8;"></div>
+      <div style="position:relative;width:150px;height:84px;background:#2a1a10;border:3px solid #3a2415;border-radius:8px;overflow:hidden;flex:none;">
+        <div style="position:absolute;left:0;right:0;bottom:0;height:10px;background:#1c120b;border-top:2px solid #3a2415;"></div>
+        <div style="position:absolute;left:28px;bottom:10px;width:36px;height:48px;">
+          <div style="position:absolute;top:0;left:8px;width:16px;height:12px;background:#d4a878;"></div>
+          <div style="position:absolute;top:-4px;left:6px;width:20px;height:6px;background:#e8c040;"></div>
+          <div style="position:absolute;top:12px;left:6px;width:20px;height:18px;background:#8a5a3a;"></div>
+          <div style="position:absolute;top:30px;left:8px;width:6px;height:14px;background:#241610;transform-origin:top center;animation:legStep 1s steps(1,end) infinite;"></div>
+          <div style="position:absolute;top:30px;left:18px;width:6px;height:14px;background:#241610;transform-origin:top center;animation:legStep 1s steps(1,end) infinite reverse;"></div>
+          <div style="position:absolute;top:14px;left:22px;width:4px;height:16px;background:#d4a878;transform-origin:top center;animation:swing 1s steps(1,end) infinite;">
+            <div style="position:absolute;bottom:-2px;left:-1px;width:6px;height:16px;background:#a06850;"></div>
+            <div style="position:absolute;bottom:12px;left:-9px;width:22px;height:5px;background:#9aa5b8;"></div>
           </div>
-
-          <!-- Korpus (górnicza bluza) -->
-          <div style="position:absolute;top:34px;left:6px;width:32px;height:16px;background:#445566;"></div>
-          <!-- Szelki -->
-          <div style="position:absolute;top:34px;left:12px;width:3px;height:16px;background:#5a5040;"></div>
-          <div style="position:absolute;top:34px;left:28px;width:3px;height:16px;background:#5a5040;"></div>
-          <!-- Kołnierz -->
-          <div style="position:absolute;top:33px;left:14px;width:16px;height:3px;background:#3a4a5a;"></div>
-
-          <!-- Lewe ramię (spokojnie) -->
-          <div style="position:absolute;top:36px;left:0;width:8px;height:10px;background:#445566;transform-origin:8px 2px;"></div>
-          <!-- Lewa dłoń -->
-          <div style="position:absolute;top:44px;left:-2px;width:8px;height:4px;background:#c09060;"></div>
-
-          <!-- Prawe ramię (macha kilofem) -->
-          <div style="position:absolute;top:34px;left:34px;width:8px;height:10px;background:#445566;transform-origin:0 2px;animation:swing 1s steps(1,end) infinite;">
-            <!-- Rękaw -->
-            <div style="position:absolute;top:6px;left:0;width:6px;height:4px;background:#d4a878;"></div>
-            <!-- Przedramię (trzyma kilof) -->
-            <div style="position:absolute;top:8px;left:2px;width:6px;height:4px;background:#c09060;"></div>
-            <!-- Dłoń na stylisku -->
-            <div style="position:absolute;top:10px;left:0;width:8px;height:4px;background:#b08050;"></div>
-
-            <!-- KILOF — stylisko + głowica -->
-            <div style="position:absolute;top:-8px;left:4px;width:4px;height:28px;background:#b08040;border-radius:2px;"></div>
-            <!-- Głowica kilofa (stal) -->
-            <div style="position:absolute;top:-12px;left:-8px;width:24px;height:6px;background:#9aa5b8;"></div>
-            <!-- Ostrze kilofa z lewej -->
-            <div style="position:absolute;top:-16px;left:-8px;width:6px;height:6px;background:#8890a0;clip-path:polygon(0% 100%,50% 0%,100% 100%);"></div>
-            <!-- Obuch z prawej -->
-            <div style="position:absolute;top:-10px;left:12px;width:6px;height:4px;background:#778090;"></div>
-            <!-- Mocowanie -->
-            <div style="position:absolute;top:-10px;left:2px;width:12px;height:2px;background:#667080;"></div>
-          </div>
-
-          <!-- Nogi (w butach górniczych) -->
-          <div style="position:absolute;top:50px;left:10px;width:8px;height:10px;background:#3a3035;transform-origin:top center;animation:legStep 1s steps(1,end) infinite;"></div>
-          <div style="position:absolute;top:50px;left:26px;width:8px;height:10px;background:#3a3035;transform-origin:top center;animation:legStep 1s steps(1,end) infinite reverse;"></div>
-          <!-- Buty -->
-          <div style="position:absolute;top:58px;left:8px;width:12px;height:4px;background:#241610;border-radius:2px 2px 0 0;"></div>
-          <div style="position:absolute;top:58px;left:24px;width:12px;height:4px;background:#241610;border-radius:2px 2px 0 0;"></div>
         </div>
-
-        <!-- Ruda (większa, bardziej szczegółowa) -->
-        <div style="position:absolute;right:16px;bottom:12px;width:30px;height:28px;background:#6b5a4a;border:2px solid #3a2415;animation:shake 1s steps(1,end) infinite;">
-          <div style="position:absolute;top:3px;left:4px;width:6px;height:2px;background:#3a2415;"></div>
-          <div style="position:absolute;top:8px;left:14px;width:8px;height:2px;background:#3a2415;"></div>
-          <div style="position:absolute;top:14px;left:6px;width:5px;height:2px;background:#2a1a10;"></div>
-          <div style="position:absolute;top:18px;left:18px;width:6px;height:2px;background:#3a2415;"></div>
-          <!-- Złote żyłki w rudzie -->
-          <div style="position:absolute;top:5px;left:18px;width:3px;height:6px;background:rgba(232,192,64,0.5);"></div>
-          <div style="position:absolute;top:16px;left:12px;width:4px;height:3px;background:rgba(232,192,64,0.3);"></div>
+        <div style="position:absolute;right:18px;bottom:10px;width:22px;height:20px;background:#6b5a4a;border:2px solid #3a2415;animation:shake 1s steps(1,end) infinite;">
+          <div style="position:absolute;top:4px;left:3px;width:6px;height:2px;background:#3a2415;"></div>
+          <div style="position:absolute;top:10px;left:10px;width:8px;height:2px;background:#3a2415;"></div>
         </div>
-
-        <!-- Wylatujące tokeny (4 sztuki) -->
-        <div style="position:absolute;right:22px;bottom:42px;width:6px;height:6px;background:#e8c040;animation:popToken0 1s steps(1,end) infinite;box-shadow:0 0 2px rgba(232,192,64,0.6);"></div>
-        <div style="position:absolute;right:30px;bottom:38px;width:5px;height:5px;background:#e8c040;animation:popToken1 1s steps(1,end) infinite;animation-delay:0.12s;"></div>
-        <div style="position:absolute;right:16px;bottom:38px;width:7px;height:7px;background:#e8c040;animation:popToken2 1s steps(1,end) infinite;animation-delay:0.24s;box-shadow:0 0 3px rgba(232,192,64,0.5);"></div>
-        <div style="position:absolute;right:38px;bottom:36px;width:4px;height:4px;background:#e8c040;animation:popToken3 1s steps(1,end) infinite;animation-delay:0.35s;"></div>
-
-        <!-- Pył węglowy -->
-        <div style="position:absolute;right:24px;bottom:38px;width:3px;height:3px;background:#555;animation:dust1 1s steps(1,end) infinite;animation-delay:0.05s;"></div>
-        <div style="position:absolute;right:14px;bottom:40px;width:2px;height:2px;background:#444;animation:dust2 1s steps(1,end) infinite;animation-delay:0.18s;"></div>
-        <div style="position:absolute;right:34px;bottom:35px;width:3px;height:2px;background:#555;animation:dust3 1s steps(1,end) infinite;animation-delay:0.3s;"></div>
+        <div style="position:absolute;right:24px;bottom:32px;width:6px;height:6px;background:#e8c040;animation:popToken0 1s steps(1,end) infinite;"></div>
+        <div style="position:absolute;right:30px;bottom:30px;width:6px;height:6px;background:#e8c040;animation:popToken1 1s steps(1,end) infinite;animation-delay:0.15s;"></div>
+        <div style="position:absolute;right:18px;bottom:30px;width:6px;height:6px;background:#e8c040;animation:popToken2 1s steps(1,end) infinite;animation-delay:0.3s;"></div>
       </div>
 
       <div>
-        <div style="color:#3a2415;font-size:7px;margin-bottom:6px;">TOKENY WYFEDROWANE</div>
+        <div style="color:#3a2415;font-size:7px;margin-bottom:6px;">TOKENY WYKOPANE</div>
         <div id="minedCount" style="color:#241610;font-size:18px;">0</div>
-        <div id="sessionTime" style="color:#3a2415;font-size:7px;margin-top:6px;">SZYCHTA: 00:00</div>
+        <div id="sessionTime" style="color:#3a2415;font-size:7px;margin-top:6px;">SESJA: 00:00</div>
       </div>
     </div>
 
@@ -350,7 +211,7 @@ function updateMiningRig() {
   const elapsed = Math.floor((Date.now() - sessionStart) / 1000);
   const m = Math.floor(elapsed / 60).toString().padStart(2, '0');
   const s = (elapsed % 60).toString().padStart(2, '0');
-  document.getElementById('sessionTime').textContent = 'SZYCHTA: ' + m + ':' + s;
+  document.getElementById('sessionTime').textContent = 'SESJA: ' + m + ':' + s;
   document.getElementById('minedCount').textContent = totalMined.toLocaleString('pl-PL');
 }
 

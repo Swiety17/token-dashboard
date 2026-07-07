@@ -106,31 +106,35 @@ def fmt(n):
 class TokenBarApp(rumps.App):
     def __init__(self):
         super().__init__(
-            name="🪙",
-            title="🪙",
+            name="⛏",
+            title="⛏",
             quit_button=None,
         )
-        self.last_alerts = {}      # bucket_key -> set of fired thresholds
-        self.last_pcts = {}        # bucket_key -> last known pct
+        self.last_alerts = {}
+        self.last_pcts = {}
         self.claude = {}
         self.codex = {}
 
-        # Build menu
+        # Ensure dashboard server is running
+        self._ensure_server()
+
+        # Build menu — Dashboard first!
+        self.dash_btn = rumps.MenuItem("🎮 TOKEN WATCH — otwórz dashboard", callback=self.open_dashboard)
         self.claude_menu = rumps.MenuItem("🔵 Claude", [])
         self.codex_menu = rumps.MenuItem("🟢 Codex", [])
         self.rec_menu = rumps.MenuItem("Rekomendacja...")
         self.refresh_btn = rumps.MenuItem("🔄 Odśwież", callback=self.do_refresh)
-        self.dash_btn = rumps.MenuItem("🌐 Dashboard", callback=self.open_dashboard)
         self.quit_btn = rumps.MenuItem("⏻ Quit", callback=self.quit_app)
 
         self.menu = [
+            self.dash_btn,
+            None,
             self.claude_menu,
             self.codex_menu,
             None,
             self.rec_menu,
             None,
             self.refresh_btn,
-            self.dash_btn,
             None,
             self.quit_btn,
         ]
@@ -139,10 +143,21 @@ class TokenBarApp(rumps.App):
         self.refresh_timer = rumps.Timer(self.do_refresh, 60)
         self.refresh_timer.start()
 
-        # Pierwsze odświeżenie
         self.do_refresh(None)
 
-    # ── Data refresh ──────────────────────────────────────
+    def _ensure_server(self):
+        """Sprawdza czy serwer dashboardu chodzi — jeśli nie, odpala."""
+        import subprocess, socket
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        running = s.connect_ex(('127.0.0.1', 8765)) == 0
+        s.close()
+        if not running:
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            serve_path = os.path.join(script_dir, 'serve.py')
+            subprocess.Popen(
+                ['/Library/Frameworks/Python.framework/Versions/3.13/bin/python3', serve_path],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+            )
 
     def do_refresh(self, _):
         self.claude = fetch_claude()
@@ -272,7 +287,14 @@ class TokenBarApp(rumps.App):
     # ── Actions ───────────────────────────────────────────
 
     def open_dashboard(self, _):
-        os.system("open http://localhost:8765")
+        """Otwiera natywne okienko dashboardu przez pywebview (WebKit)."""
+        import subprocess
+        # Spawn as separate process to avoid NSApp conflict with rumps
+        dash_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'dashboard_window.py')
+        subprocess.Popen(
+            ['/Library/Frameworks/Python.framework/Versions/3.13/bin/python3', dash_script],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+        )
 
     def quit_app(self, _):
         self.refresh_timer.stop()

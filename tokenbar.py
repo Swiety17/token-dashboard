@@ -7,88 +7,15 @@ Powiadomienia systemowe macOS na 80% / 90% / 100%.
 Usage: python3 tokenbar.py
 Zatrzymaj: kliknij ikonę → Quit
 """
-import json
-import sqlite3
 import os
-import time
+import subprocess
+import socket
 import threading
-from datetime import datetime, timezone
+from fetcher import get_claude as _fetch_claude, get_codex as _fetch_codex
 
 import rumps
 
-# ── Ścieżki ──────────────────────────────────────────────────
-TOKENEATER = os.path.expanduser(
-    "~/Library/Application Support/com.tokeneater.shared/shared.json"
-)
-CODEX_DB = os.path.expanduser("~/.codex/state_5.sqlite")
-
-# ── Progi powiadomień ────────────────────────────────────────
 NOTIFY_LEVELS = [80, 90, 100]
-
-# ══════════════════════════════════════════════════════════════
-#  DATA FETCH
-# ══════════════════════════════════════════════════════════════
-
-def fetch_claude():
-    if not os.path.exists(TOKENEATER):
-        return {}
-    try:
-        with open(TOKENEATER) as f:
-            data = json.load(f)
-    except Exception:
-        return {}
-    usage = data.get("cachedUsage", {}).get("usage", {})
-    daily = data.get("lastWeekDailyTotals", [])
-    result = {}
-    for key in ("five_hour", "seven_day", "extra_usage"):
-        b = usage.get(key, {})
-        pct = b.get("utilization", 0)
-        resets = b.get("resets_at")
-        rem = None
-        if resets:
-            try:
-                dt = datetime.fromisoformat(resets.replace("Z", "+00:00"))
-                r = dt - datetime.now(timezone.utc)
-                if r.total_seconds() > 0:
-                    rem = int(r.total_seconds() // 60)
-            except Exception:
-                pass
-        result[key] = {"pct": pct, "remaining_min": rem}
-        if key == "extra_usage":
-            result[key]["limit"] = b.get("monthly_limit", 0)
-            result[key]["used"] = b.get("used_credits", 0)
-    result["_daily"] = daily
-    result["_total_7d"] = sum(daily)
-    result["_pacing"] = data.get("smartColorProfile", "?")
-    return result
-
-
-def fetch_codex():
-    if not os.path.exists(CODEX_DB):
-        return {}
-    try:
-        conn = sqlite3.connect(CODEX_DB)
-        conn.row_factory = sqlite3.Row
-    except Exception:
-        return {}
-
-    def q(sql, p=()):
-        r = conn.execute(sql, p).fetchone()
-        return dict(r) if r else {}
-
-    now = int(time.time())
-    summary = q(
-        "SELECT COUNT(*) as threads, COALESCE(SUM(tokens_used),0) as total "
-        "FROM threads"
-    )
-    windows = {}
-    for label, cutoff in [("24h", now-86400), ("7d", now-604800), ("30d", now-2592000)]:
-        windows[label] = q(
-            "SELECT COALESCE(SUM(tokens_used),0) as tokens FROM threads WHERE created_at > ?",
-            (cutoff,),
-        )
-    conn.close()
-    return {"summary": summary, "windows": windows}
 
 
 def fmt(n):
@@ -106,31 +33,35 @@ def fmt(n):
 class TokenBarApp(rumps.App):
     def __init__(self):
         super().__init__(
-            name="🪙",
-            title="🪙",
+            name="⛏",
+            title="⛏",
             quit_button=None,
         )
-        self.last_alerts = {}      # bucket_key -> set of fired thresholds
-        self.last_pcts = {}        # bucket_key -> last known pct
+        self.last_alerts = {}
+        self.last_pcts = {}
         self.claude = {}
         self.codex = {}
 
-        # Build menu
+        # Ensure dashboard server is running
+        self._ensure_server()
+
+        # Build menu — Dashboard first!
+        self.dash_btn = rumps.MenuItem("🎮 TOKEN WATCH — otwórz dashboard", callback=self.open_dashboard)
         self.claude_menu = rumps.MenuItem("🔵 Claude", [])
         self.codex_menu = rumps.MenuItem("🟢 Codex", [])
         self.rec_menu = rumps.MenuItem("Rekomendacja...")
         self.refresh_btn = rumps.MenuItem("🔄 Odśwież", callback=self.do_refresh)
-        self.dash_btn = rumps.MenuItem("🌐 Dashboard", callback=self.open_dashboard)
         self.quit_btn = rumps.MenuItem("⏻ Quit", callback=self.quit_app)
 
         self.menu = [
+            self.dash_btn,
+            None,
             self.claude_menu,
             self.codex_menu,
             None,
             self.rec_menu,
             None,
             self.refresh_btn,
-            self.dash_btn,
             None,
             self.quit_btn,
         ]
@@ -139,14 +70,44 @@ class TokenBarApp(rumps.App):
         self.refresh_timer = rumps.Timer(self.do_refresh, 60)
         self.refresh_timer.start()
 
-        # Pierwsze odświeżenie
         self.do_refresh(None)
 
-    # ── Data refresh ──────────────────────────────────────
+    def _ensure_server(self):
+        """Sprawdza czy serwer dashboardu chodzi — jeśli nie, odpala."""
+        import subprocess, socket
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        running = s.connect_ex(('127.0.0.1', 8765)) == 0
+        s.close()
+        if not running:
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            serve_path = os.path.join(script_dir, 'serve.py')
+            subprocess.Popen(
+                ['/Library/Frameworks/Python.framework/Versions/3.13/bin/python3', serve_path],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+            )
+
+    def _adapt_claude(self, raw):
+        """Map fetcher output → tokenbar's flat format."""
+        if not raw.get("available"):
+            return {}
+        buckets = raw["buckets"]
+        result = {}
+        for key in ("five_hour", "seven_day", "extra_usage"):
+            result[key] = {
+                "pct": buckets[key].get("utilization_percent", 0),
+                "remaining_min": buckets[key].get("remaining_min"),
+            }
+            if key == "extra_usage":
+                result[key]["limit"] = buckets[key].get("monthly_limit", 0)
+                result[key]["used"] = buckets[key].get("used_credits", 0)
+        result["_daily"] = raw.get("daily_totals_last_7d", [])
+        result["_total_7d"] = raw.get("total_tokens_7d", 0)
+        result["_pacing"] = raw.get("pacing_profile", "?")
+        return result
 
     def do_refresh(self, _):
-        self.claude = fetch_claude()
-        self.codex = fetch_codex()
+        self.claude = self._adapt_claude(_fetch_claude())
+        self.codex = _fetch_codex()
         self.update_title()
         self.update_menus()
         self.check_alerts()
@@ -272,7 +233,14 @@ class TokenBarApp(rumps.App):
     # ── Actions ───────────────────────────────────────────
 
     def open_dashboard(self, _):
-        os.system("open http://localhost:8765")
+        """Otwiera natywne okienko dashboardu przez pywebview (WebKit)."""
+        import subprocess
+        # Spawn as separate process to avoid NSApp conflict with rumps
+        dash_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'dashboard_window.py')
+        subprocess.Popen(
+            ['/Library/Frameworks/Python.framework/Versions/3.13/bin/python3', dash_script],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+        )
 
     def quit_app(self, _):
         self.refresh_timer.stop()
